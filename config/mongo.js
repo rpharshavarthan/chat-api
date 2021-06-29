@@ -3,7 +3,7 @@ const config = require("./index");
 const CONNECTION_URL = `mongodb://${config.db.url}/${config.db.name}`;
 const URI = process.env.MONGODB_URI;
 
-mongoose.connect(URI, {
+mongoose.connect(CONNECTION_URL, {
   useCreateIndex: true,
   useUnifiedTopology: true,
   useNewUrlParser: true,
