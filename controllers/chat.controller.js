@@ -120,7 +120,36 @@ const chatController = {
       return res.status(500).json({ success: false, error: error.message });
     }
   },
-  markConversationReadByRoomId: async (req, res) => {},
+  markConversationReadByRoomId: async (req, res) => {
+    try {
+      const { roomId } = req.params;
+      const room = await ChatRooms.findOne({ _id: req.params.roomId });
+      if(!room){
+        return res.status(400).json({
+          success: false,
+          message: "No room with this id found",
+        });
+      }
+      const loggedInUser = req.user;
+      const result = await ChatMessages.updateMany(
+        {
+          chatRoomId: roomId,
+          "readByRecipients.readByUser": { $ne: loggedInUser },
+        },
+        {
+          $addToSet: {
+            readByRecipients: { readByUser: loggedInUser },
+          },
+        },
+        {
+          multi: true,
+        }
+      );
+      return res.status(200).json({ success: true, data: result });
+    } catch (error) {
+      return res.status(500).json({ success: false, error: error.message });
+    }
+  },
 };
 
 module.exports = chatController;
